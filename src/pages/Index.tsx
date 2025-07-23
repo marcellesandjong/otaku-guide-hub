@@ -1,42 +1,122 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AnimeGrid } from "@/components/AnimeGrid";
 import { GenreFilter } from "@/components/GenreFilter";
-import { animeData, genres, Anime } from "@/data/animeData";
-import { Search, Sparkles, TrendingUp } from "lucide-react";
+import { Anime } from "@/data/animeData";
+import { fetchTopAnime, searchAnime, fetchAnimeByGenre, convertJikanToAnime, genreMapping } from "@/services/jikanApi";
+import { Search, Sparkles, TrendingUp, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
+const genres = [
+  "All",
+  "Action",
+  "Adventure", 
+  "Comedy",
+  "Drama",
+  "Fantasy",
+  "Historical",
+  "Horror",
+  "Mystery",
+  "Psychological",
+  "Romance",
+  "School",
+  "Sci-Fi",
+  "Slice of Life",
+  "Sports",
+  "Supernatural",
+  "Thriller"
+];
 
 const Index = () => {
   const [selectedGenre, setSelectedGenre] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [topAnimes, setTopAnimes] = useState<Anime[]>([]);
+  const [allAnimes, setAllAnimes] = useState<Anime[]>([]);
+  const [filteredAnimes, setFilteredAnimes] = useState<Anime[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searching, setSearching] = useState(false);
+  const { toast } = useToast();
 
-  const filteredAnimes: Anime[] = useMemo(() => {
-    let filtered = animeData;
+  // Fetch top anime on component mount
+  useEffect(() => {
+    const loadTopAnime = async () => {
+      try {
+        setLoading(true);
+        const jikanAnimes = await fetchTopAnime(24);
+        const convertedAnimes = jikanAnimes.map(convertJikanToAnime);
+        setTopAnimes(convertedAnimes.slice(0, 6));
+        setAllAnimes(convertedAnimes);
+        setFilteredAnimes(convertedAnimes);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to load anime data. Please try again later.",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadTopAnime();
+  }, [toast]);
 
-    // Filter by genre
-    if (selectedGenre !== "All") {
-      filtered = filtered.filter(anime => 
-        anime.genre.includes(selectedGenre)
-      );
-    }
+  // Handle search
+  useEffect(() => {
+    const handleSearch = async () => {
+      if (searchQuery.trim()) {
+        try {
+          setSearching(true);
+          const searchResults = await searchAnime(searchQuery, 20);
+          const convertedResults = searchResults.map(convertJikanToAnime);
+          setFilteredAnimes(convertedResults);
+        } catch (error) {
+          toast({
+            title: "Search Error",
+            description: "Failed to search anime. Please try again.",
+            variant: "destructive"
+          });
+        } finally {
+          setSearching(false);
+        }
+      } else if (selectedGenre === "All") {
+        setFilteredAnimes(allAnimes);
+      }
+    };
 
-    // Filter by search query
-    if (searchQuery.trim()) {
-      filtered = filtered.filter(anime =>
-        anime.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        anime.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        anime.genre.some(genre => 
-          genre.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-      );
-    }
+    const debounceTimer = setTimeout(handleSearch, 500);
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery, allAnimes, selectedGenre, toast]);
 
-    return filtered;
-  }, [selectedGenre, searchQuery]);
+  // Handle genre filtering
+  useEffect(() => {
+    const handleGenreFilter = async () => {
+      if (selectedGenre !== "All" && !searchQuery.trim()) {
+        try {
+          setSearching(true);
+          const genreId = genreMapping[selectedGenre];
+          if (genreId) {
+            const genreResults = await fetchAnimeByGenre(genreId, 20);
+            const convertedResults = genreResults.map(convertJikanToAnime);
+            setFilteredAnimes(convertedResults);
+          }
+        } catch (error) {
+          toast({
+            title: "Filter Error",
+            description: "Failed to filter anime by genre. Please try again.",
+            variant: "destructive"
+          });
+        } finally {
+          setSearching(false);
+        }
+      } else if (selectedGenre === "All" && !searchQuery.trim()) {
+        setFilteredAnimes(allAnimes);
+      }
+    };
 
-  const topAnimes = useMemo(() => 
-    [...animeData].sort((a, b) => b.rating - a.rating).slice(0, 6)
-  , []);
+    handleGenreFilter();
+  }, [selectedGenre, searchQuery, allAnimes, toast]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -89,7 +169,7 @@ const Index = () => {
         </section>
 
         {/* Top Rated Section */}
-        {!searchQuery && selectedGenre === "All" && (
+        {!searchQuery && selectedGenre === "All" && !loading && (
           <section className="space-y-8">
             <div className="flex items-center gap-3">
               <TrendingUp className="w-8 h-8 text-accent" />
@@ -98,61 +178,83 @@ const Index = () => {
               </h2>
             </div>
             <p className="text-muted-foreground text-lg max-w-2xl">
-              Discover the highest-rated anime series and movies, carefully curated based on user ratings and critical acclaim.
+              Discover the highest-rated anime series and movies from MyAnimeList, curated based on user ratings and critical acclaim.
             </p>
             <AnimeGrid animes={topAnimes} />
           </section>
         )}
 
-        {/* Genre Filter & All Anime */}
-        <section className="space-y-8">
-          <div className="space-y-4">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-              {searchQuery 
-                ? `Search Results (${filteredAnimes.length})` 
-                : selectedGenre === "All" 
-                  ? "All Anime" 
-                  : `${selectedGenre} Anime (${filteredAnimes.length})`
-              }
-            </h2>
-            {!searchQuery && (
-              <div className="space-y-4">
-                <p className="text-muted-foreground text-lg">
-                  Filter by genre to find your perfect anime match
-                </p>
-                <GenreFilter
-                  genres={genres}
-                  selectedGenre={selectedGenre}
-                  onGenreSelect={setSelectedGenre}
-                />
-              </div>
-            )}
+        {/* Loading State */}
+        {loading && (
+          <div className="flex items-center justify-center py-16">
+            <div className="flex items-center gap-4">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              <p className="text-lg text-muted-foreground">Loading anime data from MyAnimeList...</p>
+            </div>
           </div>
+        )}
 
-          {filteredAnimes.length > 0 ? (
-            <AnimeGrid animes={filteredAnimes} />
-          ) : (
-            <div className="text-center py-16 space-y-4">
-              <div className="text-6xl">😅</div>
-              <h3 className="text-2xl font-semibold text-foreground">No anime found</h3>
-              <p className="text-muted-foreground max-w-md mx-auto">
+        {/* Genre Filter & All Anime */}
+        {!loading && (
+          <section className="space-y-8">
+            <div className="space-y-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground flex items-center gap-3">
                 {searchQuery 
-                  ? "Try adjusting your search terms or browse by genre instead."
-                  : "No anime found in this genre. Try selecting a different genre."
+                  ? `Search Results ${searching ? '' : `(${filteredAnimes.length})`}` 
+                  : selectedGenre === "All" 
+                    ? "All Anime" 
+                    : `${selectedGenre} Anime ${searching ? '' : `(${filteredAnimes.length})`}`
                 }
-              </p>
-              {searchQuery && (
-                <Button 
-                  variant="secondary" 
-                  onClick={() => setSearchQuery("")}
-                  className="mt-4"
-                >
-                  Clear Search
-                </Button>
+                {searching && <Loader2 className="w-6 h-6 animate-spin text-primary" />}
+              </h2>
+              {!searchQuery && (
+                <div className="space-y-4">
+                  <p className="text-muted-foreground text-lg">
+                    Filter by genre to find your perfect anime match
+                  </p>
+                  <GenreFilter
+                    genres={genres}
+                    selectedGenre={selectedGenre}
+                    onGenreSelect={setSelectedGenre}
+                  />
+                </div>
               )}
             </div>
-          )}
-        </section>
+
+            {!searching && filteredAnimes.length > 0 ? (
+              <AnimeGrid animes={filteredAnimes} />
+            ) : !searching && filteredAnimes.length === 0 ? (
+              <div className="text-center py-16 space-y-4">
+                <div className="text-6xl">😅</div>
+                <h3 className="text-2xl font-semibold text-foreground">No anime found</h3>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  {searchQuery 
+                    ? "Try adjusting your search terms or browse by genre instead."
+                    : "No anime found in this genre. Try selecting a different genre."
+                  }
+                </p>
+                {searchQuery && (
+                  <Button 
+                    variant="secondary" 
+                    onClick={() => setSearchQuery("")}
+                    className="mt-4"
+                  >
+                    Clear Search
+                  </Button>
+                )}
+              </div>
+            ) : searching && (
+              <div className="flex items-center justify-center py-16">
+                <div className="flex items-center gap-4">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  <p className="text-lg text-muted-foreground">
+                    {searchQuery ? "Searching anime..." : "Loading anime..."}
+                  </p>
+                </div>
+              </div>
+            )}
+          </section>
+        )}
       </div>
 
       {/* Footer */}
@@ -165,7 +267,7 @@ const Index = () => {
             </h3>
           </div>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Your comprehensive anime database with ratings, summaries, and genre-based discovery. 
+            Your comprehensive anime database powered by MyAnimeList with real ratings, summaries, and genre-based discovery. 
             Explore the vast world of anime and find your next favorite series.
           </p>
           <div className="mt-6 text-sm text-muted-foreground">
