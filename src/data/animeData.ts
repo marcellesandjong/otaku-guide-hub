@@ -18,7 +18,7 @@ export const animeData: Anime[] = [
     year: 2013,
     genre: ["Action", "Drama", "Fantasy"],
     summary: "Humanity fights for survival against giant humanoid Titans behind massive walls.",
-    image: "/src/assets/anime-action.jpg",
+    image: "/src/assets/attack-on-titan.jpg",
     episodes: 87,
     status: "Completed"
   },
@@ -29,7 +29,7 @@ export const animeData: Anime[] = [
     year: 2019,
     genre: ["Action", "Supernatural", "Historical"],
     summary: "A young boy becomes a demon slayer to save his sister who was turned into a demon.",
-    image: "/src/assets/anime-action.jpg",
+    image: "/src/assets/demon-slayer.jpg",
     episodes: 32,
     status: "Ongoing"
   },
@@ -40,7 +40,7 @@ export const animeData: Anime[] = [
     year: 2016,
     genre: ["Romance", "Drama", "Supernatural"],
     summary: "Two teenagers share a profound, magical connection upon discovering they are swapping bodies.",
-    image: "/src/assets/anime-fantasy.jpg",
+    image: "/src/assets/your-name.jpg",
     episodes: 1,
     status: "Completed"
   },
@@ -51,7 +51,7 @@ export const animeData: Anime[] = [
     year: 2001,
     genre: ["Adventure", "Family", "Fantasy"],
     summary: "A young girl enters a world of spirits and witches, where humans are changed into beasts.",
-    image: "/src/assets/anime-fantasy.jpg",
+    image: "/src/assets/spirited-away.jpg",
     episodes: 1,
     status: "Completed"
   },
@@ -62,7 +62,7 @@ export const animeData: Anime[] = [
     year: 1999,
     genre: ["Action", "Adventure", "Comedy"],
     summary: "Monkey D. Luffy explores the Grand Line with his diverse crew of pirates, the Straw Hats.",
-    image: "/src/assets/anime-hero.jpg",
+    image: "/src/assets/one-piece.jpg",
     episodes: 1000,
     status: "Ongoing"
   },
@@ -73,7 +73,7 @@ export const animeData: Anime[] = [
     year: 2020,
     genre: ["Action", "School", "Supernatural"],
     summary: "A high school student joins a secret organization of Jujutsu Sorcerers to eliminate Cursed Spirits.",
-    image: "/src/assets/anime-action.jpg",
+    image: "/src/assets/jujutsu-kaisen.jpg",
     episodes: 24,
     status: "Ongoing"
   },
@@ -84,7 +84,7 @@ export const animeData: Anime[] = [
     year: 2016,
     genre: ["Action", "School", "Superhero"],
     summary: "A boy born without superpowers in a superhuman society enrolls in a prestigious hero academy.",
-    image: "/src/assets/anime-school.jpg",
+    image: "/src/assets/my-hero-academia.jpg",
     episodes: 138,
     status: "Ongoing"
   },
@@ -95,7 +95,7 @@ export const animeData: Anime[] = [
     year: 2006,
     genre: ["Thriller", "Supernatural", "Psychological"],
     summary: "A high school student finds a supernatural notebook that can kill anyone whose name is written in it.",
-    image: "/src/assets/anime-action.jpg",
+    image: "/src/assets/death-note.jpg",
     episodes: 37,
     status: "Completed"
   },
@@ -106,7 +106,7 @@ export const animeData: Anime[] = [
     year: 2002,
     genre: ["Action", "Adventure", "Ninja"],
     summary: "A young ninja seeks recognition from his peers and dreams of becoming the village leader.",
-    image: "/src/assets/anime-hero.jpg",
+    image: "/src/assets/naruto.jpg",
     episodes: 720,
     status: "Completed"
   },
@@ -117,7 +117,7 @@ export const animeData: Anime[] = [
     year: 1989,
     genre: ["Action", "Adventure", "Martial Arts"],
     summary: "Goku and his friends defend Earth against powerful villains and otherworldly threats.",
-    image: "/src/assets/anime-hero.jpg",
+    image: "/src/assets/dragon-ball-z.jpg",
     episodes: 291,
     status: "Completed"
   }

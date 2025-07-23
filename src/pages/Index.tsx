@@ -48,7 +48,7 @@ const Index = () => {
             <div className="flex items-center justify-center gap-2 mb-4">
               <Sparkles className="w-8 h-8 text-accent animate-pulse" />
               <h1 className="text-5xl md:text-7xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                Otaku Guide Hub
+                Anime Plug
               </h1>
               <Sparkles className="w-8 h-8 text-primary animate-pulse" />
             </div>
@@ -161,7 +161,7 @@ const Index = () => {
           <div className="flex items-center justify-center gap-2 mb-4">
             <Sparkles className="w-6 h-6 text-accent" />
             <h3 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Otaku Guide Hub
+              Anime Plug
             </h3>
           </div>
           <p className="text-muted-foreground max-w-2xl mx-auto">
