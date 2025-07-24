@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AnimeGrid } from "@/components/AnimeGrid";
 import { GenreFilter } from "@/components/GenreFilter";
-import { Logo } from "@/components/Logo";
 import { Anime } from "@/data/animeData";
 import { fetchTopAnime, searchAnime, fetchAnimeByGenre, convertJikanToAnime, genreMapping } from "@/services/jikanApi";
 import { Search, Sparkles, TrendingUp, Loader2 } from "lucide-react";
@@ -127,7 +126,7 @@ const Index = () => {
         <div className="relative container mx-auto px-4 py-20 text-center">
           <div className="space-y-6 max-w-4xl mx-auto">
             <div className="flex items-center justify-center gap-4 mb-4">
-              <Logo className="w-16 h-16 md:w-20 md:h-20" />
+              <img src="/lovable-uploads/5ef95fb4-7d5a-4089-8450-bbe2df043b0d.png" alt="Anime Plug Logo" className="w-16 h-16 md:w-20 md:h-20" />
               <h1 className="text-5xl md:text-7xl font-bold bg-gradient-primary bg-clip-text text-transparent">
                 Anime Plug
               </h1>
@@ -263,7 +262,7 @@ const Index = () => {
       <footer className="bg-card/30 border-t border-border/50 py-12 mt-16">
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <Logo className="w-8 h-8" />
+            <img src="/lovable-uploads/5ef95fb4-7d5a-4089-8450-bbe2df043b0d.png" alt="Anime Plug Logo" className="w-8 h-8" />
             <h3 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
               Anime Plug
             </h3>
