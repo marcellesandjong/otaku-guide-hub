@@ -125,8 +125,8 @@ const Index = () => {
         <div className="absolute inset-0 bg-gradient-primary opacity-10" />
         <div className="relative container mx-auto px-4 py-20 text-center">
           <div className="space-y-6 max-w-4xl mx-auto">
-            <div className="mb-4">
-              <h1 className="text-5xl md:text-7xl font-bold bg-gradient-primary bg-clip-text text-transparent leading-tight">
+            <div className="mb-4 py-2">
+              <h1 className="text-5xl md:text-7xl font-bold bg-gradient-primary bg-clip-text text-transparent leading-normal">
                 Anime Plug
               </h1>
             </div>
