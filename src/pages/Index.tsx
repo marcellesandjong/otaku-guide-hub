@@ -125,12 +125,11 @@ const Index = () => {
         <div className="absolute inset-0 bg-gradient-primary opacity-10" />
         <div className="relative container mx-auto px-4 py-20 text-center">
           <div className="space-y-6 max-w-4xl mx-auto">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <Sparkles className="w-8 h-8 text-accent animate-pulse" />
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <img src="/lovable-uploads/5ef95fb4-7d5a-4089-8450-bbe2df043b0d.png" alt="Anime Plug Logo" className="w-16 h-16 md:w-20 md:h-20" />
               <h1 className="text-5xl md:text-7xl font-bold bg-gradient-primary bg-clip-text text-transparent">
                 Anime Plug
               </h1>
-              <Sparkles className="w-8 h-8 text-primary animate-pulse" />
             </div>
             <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Your ultimate destination for anime discovery, ratings, and comprehensive guides to the best anime series and movies.
@@ -138,6 +137,7 @@ const Index = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
               <Button 
                 size="lg" 
+                onClick={() => document.getElementById('top-anime')?.scrollIntoView({ behavior: 'smooth' })}
                 className="bg-gradient-primary hover:shadow-glow transition-all duration-300 text-lg px-8 py-6"
               >
                 Explore Top Anime
@@ -145,6 +145,7 @@ const Index = () => {
               <Button 
                 size="lg" 
                 variant="secondary" 
+                onClick={() => document.getElementById('genre-filter')?.scrollIntoView({ behavior: 'smooth' })}
                 className="text-lg px-8 py-6 hover:bg-secondary/80"
               >
                 Browse by Genre
@@ -170,7 +171,7 @@ const Index = () => {
 
         {/* Top Rated Section */}
         {!searchQuery && selectedGenre === "All" && !loading && (
-          <section className="space-y-8">
+          <section id="top-anime" className="space-y-8">
             <div className="flex items-center gap-3">
               <TrendingUp className="w-8 h-8 text-accent" />
               <h2 className="text-3xl md:text-4xl font-bold text-foreground">
@@ -196,7 +197,7 @@ const Index = () => {
 
         {/* Genre Filter & All Anime */}
         {!loading && (
-          <section className="space-y-8">
+          <section id="genre-filter" className="space-y-8">
             <div className="space-y-4">
               <h2 className="text-3xl md:text-4xl font-bold text-foreground flex items-center gap-3">
                 {searchQuery 
@@ -260,8 +261,8 @@ const Index = () => {
       {/* Footer */}
       <footer className="bg-card/30 border-t border-border/50 py-12 mt-16">
         <div className="container mx-auto px-4 text-center">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Sparkles className="w-6 h-6 text-accent" />
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <img src="/lovable-uploads/5ef95fb4-7d5a-4089-8450-bbe2df043b0d.png" alt="Anime Plug Logo" className="w-8 h-8" />
             <h3 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
               Anime Plug
             </h3>
