@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, Calendar, Tv } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Star, Calendar, Tv, ExternalLink } from "lucide-react";
 import { Anime } from "@/data/animeData";
 import { useState } from "react";
 
@@ -10,6 +11,12 @@ interface AnimeCardProps {
 
 export const AnimeCard = ({ anime }: AnimeCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+
+  const handleWatchNow = () => {
+    // Search for the anime on Crunchyroll
+    const searchUrl = `https://www.crunchyroll.com/search?q=${encodeURIComponent(anime.title)}`;
+    window.open(searchUrl, '_blank');
+  };
 
   return (
     <Card className="group bg-card hover:bg-gradient-secondary border-border hover:border-primary/50 transition-all duration-300 hover:shadow-glow hover:-translate-y-2 cursor-pointer overflow-hidden">
@@ -40,6 +47,19 @@ export const AnimeCard = ({ anime }: AnimeCardProps) => {
             </div>
           </div>
         </div>
+
+        {/* Watch Now Button */}
+        <Button 
+          onClick={(e) => {
+            e.stopPropagation();
+            handleWatchNow();
+          }}
+          className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transition-all duration-200"
+          size="sm"
+        >
+          <ExternalLink className="w-4 h-4 mr-2" />
+          Watch Now
+        </Button>
         
         <div className="text-sm text-muted-foreground leading-relaxed">
           <p className={isExpanded ? "" : "line-clamp-3"}>

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AnimeGrid } from "@/components/AnimeGrid";
 import { GenreFilter } from "@/components/GenreFilter";
+import { AnimeQuiz } from "@/components/AnimeQuiz";
 import { Anime } from "@/data/animeData";
 import { fetchTopAnime, searchAnime, fetchAnimeByGenre, convertJikanToAnime, genreMapping } from "@/services/jikanApi";
 import { Search, Sparkles, TrendingUp, Loader2 } from "lucide-react";
@@ -167,6 +168,24 @@ const Index = () => {
             />
           </div>
         </section>
+
+        {/* Anime Recommendation Quiz */}
+        {!searchQuery && selectedGenre === "All" && !loading && (
+          <section className="space-y-8">
+            <div className="flex items-center gap-3">
+              <Sparkles className="w-8 h-8 text-accent" />
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+                Find Your Perfect Anime
+              </h2>
+            </div>
+            <div className="space-y-6">
+              <p className="text-muted-foreground text-lg max-w-3xl leading-relaxed">
+                Not sure where to start? Take our personalized quiz to get anime recommendations tailored just for you. Answer a few quick questions and discover your next favorite series!
+              </p>
+              <AnimeQuiz />
+            </div>
+          </section>
+        )}
 
         {/* New to Anime Section */}
         {!searchQuery && selectedGenre === "All" && !loading && (
