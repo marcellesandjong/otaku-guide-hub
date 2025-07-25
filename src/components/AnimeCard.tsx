@@ -2,12 +2,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Star, Calendar, Tv } from "lucide-react";
 import { Anime } from "@/data/animeData";
+import { useState } from "react";
 
 interface AnimeCardProps {
   anime: Anime;
 }
 
 export const AnimeCard = ({ anime }: AnimeCardProps) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   return (
     <Card className="group bg-card hover:bg-gradient-secondary border-border hover:border-primary/50 transition-all duration-300 hover:shadow-glow hover:-translate-y-2 cursor-pointer overflow-hidden">
       <div className="aspect-[3/4] bg-gradient-hero rounded-t-lg flex items-center justify-center">
@@ -38,9 +41,22 @@ export const AnimeCard = ({ anime }: AnimeCardProps) => {
           </div>
         </div>
         
-        <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
-          {anime.summary}
-        </p>
+        <div className="text-sm text-muted-foreground leading-relaxed">
+          <p className={isExpanded ? "" : "line-clamp-3"}>
+            {anime.summary}
+          </p>
+          {anime.summary.length > 150 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsExpanded(!isExpanded);
+              }}
+              className="text-primary hover:text-primary/80 text-xs mt-1 font-medium transition-colors"
+            >
+              {isExpanded ? "Show less" : "Show more"}
+            </button>
+          )}
+        </div>
         
         <div className="flex flex-wrap gap-1">
           {anime.genre.slice(0, 3).map((genre) => (
