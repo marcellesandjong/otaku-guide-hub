@@ -168,6 +168,46 @@ const Index = () => {
           </div>
         </section>
 
+        {/* New to Anime Section */}
+        {!searchQuery && selectedGenre === "All" && !loading && (
+          <section className="space-y-8">
+            <div className="flex items-center gap-3">
+              <Sparkles className="w-8 h-8 text-accent" />
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+                New to Anime?
+              </h2>
+            </div>
+            <div className="space-y-6">
+              <p className="text-muted-foreground text-lg max-w-3xl leading-relaxed">
+                No worries — we've got you. Here are some of the best anime series to start with, whether you're into action, adventure, drama, or pure laughs. These beginner-friendly picks are popular, easy to follow, and perfect for diving into the amazing world of anime.
+              </p>
+              <div className="bg-card/30 rounded-lg p-6 border border-border/50">
+                <h3 className="text-xl font-semibold text-foreground mb-4">Perfect for Beginners:</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-muted-foreground">
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-foreground">Action & Adventure</h4>
+                    <p>• My Hero Academia - Superheroes in school</p>
+                    <p>• Demon Slayer - Beautiful animation, great story</p>
+                    <p>• Attack on Titan - Intense but rewarding</p>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-foreground">Drama & Movies</h4>
+                    <p>• Your Name - Stunning animated film</p>
+                    <p>• Spirited Away - Studio Ghibli masterpiece</p>
+                    <p>• Death Note - Psychological thriller</p>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-foreground">Long Adventures</h4>
+                    <p>• One Piece - Epic pirate adventure</p>
+                    <p>• Naruto - Coming-of-age ninja story</p>
+                    <p>• Dragon Ball Z - Classic battle anime</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Top Rated Section */}
         {!searchQuery && selectedGenre === "All" && !loading && (
           <section id="top-anime" className="space-y-8">
