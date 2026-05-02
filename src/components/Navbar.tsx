@@ -24,9 +24,11 @@ export function Navbar() {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center text-white font-bold text-sm shadow-glow group-hover:shadow-glow transition-all duration-300">
-            AP
-          </div>
+          <img
+            src="/logo.png"
+            alt="Anime Plug"
+            className="w-9 h-9 rounded-xl object-cover shadow-glow group-hover:scale-105 transition-transform duration-300"
+          />
           <span className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent hidden sm:block">
             Anime Plug
           </span>

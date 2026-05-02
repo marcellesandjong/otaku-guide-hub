@@ -51,6 +51,13 @@ const Index = () => {
 
         <div className="relative container mx-auto px-4 py-20 text-center">
           <div className="space-y-6 max-w-4xl mx-auto">
+            <div className="flex items-center justify-center gap-4 mb-2">
+              <img
+                src="/logo.png"
+                alt="Anime Plug logo"
+                className="w-20 h-20 md:w-24 md:h-24 rounded-2xl shadow-glow"
+              />
+            </div>
             <h1 className="text-5xl md:text-7xl font-bold bg-gradient-primary bg-clip-text text-transparent leading-tight pb-2">
               Anime Plug
             </h1>
@@ -173,9 +180,12 @@ const Index = () => {
       {/* ── Footer ───────────────────────────────────────────── */}
       <footer className="bg-card/30 border-t border-border/50 py-12 mt-16">
         <div className="container mx-auto px-4 text-center">
-          <h3 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-3">
-            Anime Plug
-          </h3>
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <img src="/logo.png" alt="Anime Plug" className="w-10 h-10 rounded-xl" />
+            <h3 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+              Anime Plug
+            </h3>
+          </div>
           <p className="text-muted-foreground max-w-2xl mx-auto text-sm leading-relaxed">
             Powered by the{' '}
             <a
