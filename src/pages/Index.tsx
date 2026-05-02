@@ -1,154 +1,81 @@
-import { useState, useMemo, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { AnimeGrid } from "@/components/AnimeGrid";
-import { GenreFilter } from "@/components/GenreFilter";
-import { AnimeQuiz } from "@/components/AnimeQuiz";
-import { Anime } from "@/data/animeData";
-import { fetchTopAnime, searchAnime, fetchAnimeByGenre, convertJikanToAnime, genreMapping } from "@/services/jikanApi";
-import { Search, Sparkles, TrendingUp, Loader2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-
-const genres = [
-  "All",
-  "Action",
-  "Adventure", 
-  "Comedy",
-  "Drama",
-  "Fantasy",
-  "Historical",
-  "Horror",
-  "Mystery",
-  "Psychological",
-  "Romance",
-  "School",
-  "Sci-Fi",
-  "Slice of Life",
-  "Sports",
-  "Supernatural",
-  "Thriller"
-];
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { AnimeGrid } from '@/components/AnimeGrid';
+import { AnimeQuiz } from '@/components/AnimeQuiz';
+import {
+  fetchTopAnime,
+  fetchSeasonalAnime,
+  convertJikanToAnime,
+} from '@/services/jikanApi';
+import type { Anime } from '@/services/jikanApi';
+import {
+  Sparkles,
+  TrendingUp,
+  Loader2,
+  Tv2,
+  Calendar,
+  ChevronRight,
+} from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
-  const [selectedGenre, setSelectedGenre] = useState("All");
-  const [searchQuery, setSearchQuery] = useState("");
   const [topAnimes, setTopAnimes] = useState<Anime[]>([]);
-  const [allAnimes, setAllAnimes] = useState<Anime[]>([]);
-  const [filteredAnimes, setFilteredAnimes] = useState<Anime[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searching, setSearching] = useState(false);
+  const [seasonalAnimes, setSeasonalAnimes] = useState<Anime[]>([]);
+  const [loadingTop, setLoadingTop] = useState(true);
+  const [loadingSeasonal, setLoadingSeasonal] = useState(true);
   const { toast } = useToast();
 
-  // Fetch top anime on component mount
   useEffect(() => {
-    const loadTopAnime = async () => {
-      try {
-        setLoading(true);
-        const jikanAnimes = await fetchTopAnime(24);
-        const convertedAnimes = jikanAnimes.map(convertJikanToAnime);
-        setTopAnimes(convertedAnimes.slice(0, 6));
-        setAllAnimes(convertedAnimes);
-        setFilteredAnimes(convertedAnimes);
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "Failed to load anime data. Please try again later.",
-          variant: "destructive"
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    loadTopAnime();
+    fetchTopAnime(10)
+      .then((data) => setTopAnimes(data.map(convertJikanToAnime)))
+      .catch(() =>
+        toast({ title: 'Error', description: 'Failed to load top anime.', variant: 'destructive' })
+      )
+      .finally(() => setLoadingTop(false));
   }, [toast]);
 
-  // Handle search
   useEffect(() => {
-    const handleSearch = async () => {
-      if (searchQuery.trim()) {
-        try {
-          setSearching(true);
-          const searchResults = await searchAnime(searchQuery, 20);
-          const convertedResults = searchResults.map(convertJikanToAnime);
-          setFilteredAnimes(convertedResults);
-        } catch (error) {
-          toast({
-            title: "Search Error",
-            description: "Failed to search anime. Please try again.",
-            variant: "destructive"
-          });
-        } finally {
-          setSearching(false);
-        }
-      } else if (selectedGenre === "All") {
-        setFilteredAnimes(allAnimes);
-      }
-    };
-
-    const debounceTimer = setTimeout(handleSearch, 500);
-    return () => clearTimeout(debounceTimer);
-  }, [searchQuery, allAnimes, selectedGenre, toast]);
-
-  // Handle genre filtering
-  useEffect(() => {
-    const handleGenreFilter = async () => {
-      if (selectedGenre !== "All" && !searchQuery.trim()) {
-        try {
-          setSearching(true);
-          const genreId = genreMapping[selectedGenre];
-          if (genreId) {
-            const genreResults = await fetchAnimeByGenre(genreId, 20);
-            const convertedResults = genreResults.map(convertJikanToAnime);
-            setFilteredAnimes(convertedResults);
-          }
-        } catch (error) {
-          toast({
-            title: "Filter Error",
-            description: "Failed to filter anime by genre. Please try again.",
-            variant: "destructive"
-          });
-        } finally {
-          setSearching(false);
-        }
-      } else if (selectedGenre === "All" && !searchQuery.trim()) {
-        setFilteredAnimes(allAnimes);
-      }
-    };
-
-    handleGenreFilter();
-  }, [selectedGenre, searchQuery, allAnimes, toast]);
+    fetchSeasonalAnime(10)
+      .then((data) => setSeasonalAnimes(data.map(convertJikanToAnime)))
+      .catch(() => {})
+      .finally(() => setLoadingSeasonal(false));
+  }, [toast]);
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-hero border-b border-border/50">
-        <div className="absolute inset-0 bg-gradient-primary opacity-10" />
+      {/* ── Hero ─────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden border-b border-border/50">
+        <div className="absolute inset-0 bg-gradient-hero opacity-20" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(270_95%_65%/0.15),transparent_60%)]" />
+
         <div className="relative container mx-auto px-4 py-20 text-center">
           <div className="space-y-6 max-w-4xl mx-auto">
-            <div className="mb-4 py-2">
-              <h1 className="text-5xl md:text-7xl font-bold bg-gradient-primary bg-clip-text text-transparent leading-normal">
-                Anime Plug
-              </h1>
-            </div>
+            <h1 className="text-5xl md:text-7xl font-bold bg-gradient-primary bg-clip-text text-transparent leading-tight pb-2">
+              Anime Plug
+            </h1>
             <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Your ultimate destination for anime discovery, ratings, and comprehensive guides to the best anime series and movies.
+              Discover anime, read community reviews, track when new episodes
+              drop, and build your personal watchlist — all in one place.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
-              <Button 
-                size="lg" 
-                onClick={() => document.getElementById('top-anime')?.scrollIntoView({ behavior: 'smooth' })}
+              <Button
+                size="lg"
+                asChild
                 className="bg-gradient-primary hover:shadow-glow transition-all duration-300 text-lg px-8 py-6"
               >
-                Explore Top Anime
+                <Link to="/browse">Browse All Anime</Link>
               </Button>
-              <Button 
-                size="lg" 
-                variant="secondary" 
-                onClick={() => document.getElementById('genre-filter')?.scrollIntoView({ behavior: 'smooth' })}
-                className="text-lg px-8 py-6 hover:bg-secondary/80"
+              <Button
+                size="lg"
+                variant="secondary"
+                asChild
+                className="text-lg px-8 py-6"
               >
-                Browse by Genre
+                <Link to="/schedule">
+                  <Calendar className="w-5 h-5 mr-2" />
+                  Airing Schedule
+                </Link>
               </Button>
             </div>
           </div>
@@ -156,181 +83,115 @@ const Index = () => {
       </section>
 
       <div className="container mx-auto px-4 py-12 space-y-16">
-        {/* Search Section */}
-        <section className="max-w-2xl mx-auto">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-            <Input
-              placeholder="Search anime by title, genre, or description..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 pr-4 py-6 text-lg bg-card/50 border-border/50 focus:border-primary/50 focus:ring-primary/20"
+
+        {/* ── Currently Airing ─────────────────────────────── */}
+        <section className="space-y-6">
+          <SectionHeader
+            icon={<Tv2 className="w-7 h-7 text-emerald-400" />}
+            title="Currently Airing"
+            linkTo="/schedule"
+            linkLabel="Full Schedule"
+          />
+          {loadingSeasonal ? (
+            <SectionLoader text="Loading seasonal anime..." />
+          ) : seasonalAnimes.length > 0 ? (
+            <AnimeGrid animes={seasonalAnimes} />
+          ) : null}
+        </section>
+
+        {/* ── Top Rated ────────────────────────────────────── */}
+        <section id="top-anime" className="space-y-6">
+          <SectionHeader
+            icon={<TrendingUp className="w-7 h-7 text-accent" />}
+            title="Top Rated Anime"
+            linkTo="/browse"
+            linkLabel="See All"
+          />
+          <p className="text-muted-foreground text-lg max-w-2xl -mt-2">
+            The highest-rated series and movies on MyAnimeList, based on
+            hundreds of thousands of user ratings.
+          </p>
+          {loadingTop ? (
+            <SectionLoader text="Loading top anime..." />
+          ) : (
+            <AnimeGrid animes={topAnimes} />
+          )}
+        </section>
+
+        {/* ── Quiz ─────────────────────────────────────────── */}
+        <section className="space-y-6">
+          <SectionHeader
+            icon={<Sparkles className="w-7 h-7 text-accent" />}
+            title="Find Your Perfect Anime"
+          />
+          <p className="text-muted-foreground text-lg max-w-3xl leading-relaxed">
+            Not sure where to start? Answer a few quick questions and get
+            personalized recommendations tailored to your taste.
+          </p>
+          <AnimeQuiz />
+        </section>
+
+        {/* ── Beginner Guide ────────────────────────────────── */}
+        <section className="space-y-6">
+          <SectionHeader
+            icon={<Sparkles className="w-7 h-7 text-accent" />}
+            title="New to Anime?"
+          />
+          <p className="text-muted-foreground text-lg max-w-3xl leading-relaxed">
+            No worries — here are some of the best series to start with,
+            whether you're into action, drama, or pure laughs.
+          </p>
+          <div className="bg-card/30 rounded-xl p-6 border border-border/50 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <BeginnerCategory
+              title="Action & Adventure"
+              items={[
+                { id: 38000, label: 'Demon Slayer — Beautiful animation & story' },
+                { id: 21, label: 'One Piece — Epic pirate adventure' },
+                { id: 16498, label: 'Attack on Titan — Intense & rewarding' },
+              ]}
+            />
+            <BeginnerCategory
+              title="Drama & Movies"
+              items={[
+                { id: 32281, label: 'Your Name — Stunning animated film' },
+                { id: 199, label: 'Spirited Away — Studio Ghibli masterpiece' },
+                { id: 1535, label: 'Death Note — Psychological thriller' },
+              ]}
+            />
+            <BeginnerCategory
+              title="Long Adventures"
+              items={[
+                { id: 21, label: 'One Piece — 1000+ episodes of greatness' },
+                { id: 20, label: 'Naruto — Coming-of-age ninja story' },
+                { id: 813, label: 'Dragon Ball Z — Classic battle anime' },
+              ]}
             />
           </div>
         </section>
-
-        {/* Anime Recommendation Quiz */}
-        {!searchQuery && selectedGenre === "All" && !loading && (
-          <section className="space-y-8">
-            <div className="flex items-center gap-3">
-              <Sparkles className="w-8 h-8 text-accent" />
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-                Find Your Perfect Anime
-              </h2>
-            </div>
-            <div className="space-y-6">
-              <p className="text-muted-foreground text-lg max-w-3xl leading-relaxed">
-                Not sure where to start? Take our personalized quiz to get anime recommendations tailored just for you. Answer a few quick questions and discover your next favorite series!
-              </p>
-              <AnimeQuiz />
-            </div>
-          </section>
-        )}
-
-        {/* New to Anime Section */}
-        {!searchQuery && selectedGenre === "All" && !loading && (
-          <section className="space-y-8">
-            <div className="flex items-center gap-3">
-              <Sparkles className="w-8 h-8 text-accent" />
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-                New to Anime?
-              </h2>
-            </div>
-            <div className="space-y-6">
-              <p className="text-muted-foreground text-lg max-w-3xl leading-relaxed">
-                No worries — we've got you. Here are some of the best anime series to start with, whether you're into action, adventure, drama, or pure laughs. These beginner-friendly picks are popular, easy to follow, and perfect for diving into the amazing world of anime.
-              </p>
-              <div className="bg-card/30 rounded-lg p-6 border border-border/50">
-                <h3 className="text-xl font-semibold text-foreground mb-4">Perfect for Beginners:</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-muted-foreground">
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-foreground">Action & Adventure</h4>
-                    <p>• My Hero Academia - Superheroes in school</p>
-                    <p>• Demon Slayer - Beautiful animation, great story</p>
-                    <p>• Attack on Titan - Intense but rewarding</p>
-                  </div>
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-foreground">Drama & Movies</h4>
-                    <p>• Your Name - Stunning animated film</p>
-                    <p>• Spirited Away - Studio Ghibli masterpiece</p>
-                    <p>• Death Note - Psychological thriller</p>
-                  </div>
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-foreground">Long Adventures</h4>
-                    <p>• One Piece - Epic pirate adventure</p>
-                    <p>• Naruto - Coming-of-age ninja story</p>
-                    <p>• Dragon Ball Z - Classic battle anime</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Top Rated Section */}
-        {!searchQuery && selectedGenre === "All" && !loading && (
-          <section id="top-anime" className="space-y-8">
-            <div className="flex items-center gap-3">
-              <TrendingUp className="w-8 h-8 text-accent" />
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-                Top Rated Anime
-              </h2>
-            </div>
-            <p className="text-muted-foreground text-lg max-w-2xl">
-              Discover the highest-rated anime series and movies from MyAnimeList, curated based on user ratings and critical acclaim.
-            </p>
-            <AnimeGrid animes={topAnimes} />
-          </section>
-        )}
-
-        {/* Loading State */}
-        {loading && (
-          <div className="flex items-center justify-center py-16">
-            <div className="flex items-center gap-4">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
-              <p className="text-lg text-muted-foreground">Loading anime data from MyAnimeList...</p>
-            </div>
-          </div>
-        )}
-
-        {/* Genre Filter & All Anime */}
-        {!loading && (
-          <section id="genre-filter" className="space-y-8">
-            <div className="space-y-4">
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground flex items-center gap-3">
-                {searchQuery 
-                  ? `Search Results ${searching ? '' : `(${filteredAnimes.length})`}` 
-                  : selectedGenre === "All" 
-                    ? "All Anime" 
-                    : `${selectedGenre} Anime ${searching ? '' : `(${filteredAnimes.length})`}`
-                }
-                {searching && <Loader2 className="w-6 h-6 animate-spin text-primary" />}
-              </h2>
-              {!searchQuery && (
-                <div className="space-y-4">
-                  <p className="text-muted-foreground text-lg">
-                    Filter by genre to find your perfect anime match
-                  </p>
-                  <GenreFilter
-                    genres={genres}
-                    selectedGenre={selectedGenre}
-                    onGenreSelect={setSelectedGenre}
-                  />
-                </div>
-              )}
-            </div>
-
-            {!searching && filteredAnimes.length > 0 ? (
-              <AnimeGrid animes={filteredAnimes} />
-            ) : !searching && filteredAnimes.length === 0 ? (
-              <div className="text-center py-16 space-y-4">
-                <div className="text-6xl">😅</div>
-                <h3 className="text-2xl font-semibold text-foreground">No anime found</h3>
-                <p className="text-muted-foreground max-w-md mx-auto">
-                  {searchQuery 
-                    ? "Try adjusting your search terms or browse by genre instead."
-                    : "No anime found in this genre. Try selecting a different genre."
-                  }
-                </p>
-                {searchQuery && (
-                  <Button 
-                    variant="secondary" 
-                    onClick={() => setSearchQuery("")}
-                    className="mt-4"
-                  >
-                    Clear Search
-                  </Button>
-                )}
-              </div>
-            ) : searching && (
-              <div className="flex items-center justify-center py-16">
-                <div className="flex items-center gap-4">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                  <p className="text-lg text-muted-foreground">
-                    {searchQuery ? "Searching anime..." : "Loading anime..."}
-                  </p>
-                </div>
-              </div>
-            )}
-          </section>
-        )}
       </div>
 
-      {/* Footer */}
+      {/* ── Footer ───────────────────────────────────────────── */}
       <footer className="bg-card/30 border-t border-border/50 py-12 mt-16">
         <div className="container mx-auto px-4 text-center">
-          <div className="mb-4">
-            <h3 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Anime Plug
-            </h3>
-          </div>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Your comprehensive anime database powered by MyAnimeList with real ratings, summaries, and genre-based discovery. 
-            Explore the vast world of anime and find your next favorite series.
+          <h3 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-3">
+            Anime Plug
+          </h3>
+          <p className="text-muted-foreground max-w-2xl mx-auto text-sm leading-relaxed">
+            Powered by the{' '}
+            <a
+              href="https://jikan.moe"
+              className="text-primary hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Jikan API
+            </a>{' '}
+            (MyAnimeList). Data includes real ratings, synopses, episode
+            counts, and airing schedules.
           </p>
-          <div className="mt-6 text-sm text-muted-foreground">
+          <p className="mt-4 text-xs text-muted-foreground/60">
             Made with ❤️ for anime enthusiasts worldwide
-          </div>
+          </p>
         </div>
       </footer>
     </div>
@@ -338,3 +199,72 @@ const Index = () => {
 };
 
 export default Index;
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function SectionHeader({
+  icon,
+  title,
+  linkTo,
+  linkLabel,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  linkTo?: string;
+  linkLabel?: string;
+}) {
+  return (
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        {icon}
+        <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+          {title}
+        </h2>
+      </div>
+      {linkTo && linkLabel && (
+        <Button variant="ghost" size="sm" asChild className="text-primary gap-1">
+          <Link to={linkTo}>
+            {linkLabel}
+            <ChevronRight className="w-4 h-4" />
+          </Link>
+        </Button>
+      )}
+    </div>
+  );
+}
+
+function SectionLoader({ text }: { text: string }) {
+  return (
+    <div className="flex items-center gap-3 py-8">
+      <Loader2 className="w-5 h-5 animate-spin text-primary" />
+      <p className="text-muted-foreground">{text}</p>
+    </div>
+  );
+}
+
+function BeginnerCategory({
+  title,
+  items,
+}: {
+  title: string;
+  items: { id: number; label: string }[];
+}) {
+  return (
+    <div className="space-y-3">
+      <h4 className="font-semibold text-foreground">{title}</h4>
+      <ul className="space-y-2">
+        {items.map(({ id, label }) => (
+          <li key={id}>
+            <Link
+              to={`/anime/${id}`}
+              className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-start gap-2 group"
+            >
+              <span className="mt-0.5 text-primary/50 group-hover:text-primary transition-colors">•</span>
+              {label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}

@@ -4,8 +4,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { ChevronLeft, ChevronRight, Sparkles, Loader2 } from 'lucide-react';
 import { AnimeCard } from '@/components/AnimeCard';
-import { fetchTopAnime, searchAnime, fetchAnimeByGenre, convertJikanToAnime, genreMapping } from '@/services/jikanApi';
-import type { Anime } from '@/data/animeData';
+import { fetchTopAnime, fetchAnimeByGenre, convertJikanToAnime, genreMapping } from '@/services/jikanApi';
+import type { Anime } from '@/services/jikanApi';
 
 interface QuizQuestion {
   id: string;
@@ -16,22 +16,6 @@ interface QuizQuestion {
 
 interface QuizAnswers {
   [key: string]: string | string[];
-}
-
-interface JikanAnime {
-  mal_id: number;
-  title: string;
-  score: number;
-  year?: number;
-  genres: Array<{ name: string }>;
-  synopsis: string;
-  images: {
-    jpg: {
-      image_url: string;
-    };
-  };
-  episodes: number;
-  status: string;
 }
 
 const questions: QuizQuestion[] = [
