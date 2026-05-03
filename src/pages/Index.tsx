@@ -16,19 +16,34 @@ import {
   Tv2,
   Calendar,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  Zap,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+// ─── Deduplicate by id ────────────────────────────────────────────────────────
+function dedupeById(animes: Anime[]): Anime[] {
+  const seen = new Set<number>();
+  return animes.filter((a) => {
+    if (seen.has(a.id)) return false;
+    seen.add(a.id);
+    return true;
+  });
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 const Index = () => {
   const [topAnimes, setTopAnimes] = useState<Anime[]>([]);
   const [seasonalAnimes, setSeasonalAnimes] = useState<Anime[]>([]);
   const [loadingTop, setLoadingTop] = useState(true);
   const [loadingSeasonal, setLoadingSeasonal] = useState(true);
+  const [quizOpen, setQuizOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     fetchTopAnime(10)
-      .then((data) => setTopAnimes(data.map(convertJikanToAnime)))
+      .then((data) => setTopAnimes(dedupeById(data.map(convertJikanToAnime))))
       .catch(() =>
         toast({ title: 'Error', description: 'Failed to load top anime.', variant: 'destructive' })
       )
@@ -36,15 +51,15 @@ const Index = () => {
   }, [toast]);
 
   useEffect(() => {
-    fetchSeasonalAnime(10)
-      .then((data) => setSeasonalAnimes(data.map(convertJikanToAnime)))
+    fetchSeasonalAnime(20)
+      .then((data) => setSeasonalAnimes(dedupeById(data.map(convertJikanToAnime))))
       .catch(() => {})
       .finally(() => setLoadingSeasonal(false));
   }, [toast]);
 
   return (
     <div className="min-h-screen bg-background">
-      {/* ── Hero ─────────────────────────────────────────────── */}
+      {/* ── Hero ──────────────────────────────────────────────── */}
       <section className="relative overflow-hidden border-b border-border/50">
         <div className="absolute inset-0 bg-gradient-hero opacity-20" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(270_95%_65%/0.15),transparent_60%)]" />
@@ -65,17 +80,32 @@ const Index = () => {
               Discover anime, read community reviews, track when new episodes
               drop, and build your personal watchlist — all in one place.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
+
+            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mt-8">
               <Button
                 size="lg"
+                onClick={() => {
+                  setQuizOpen(true);
+                  setTimeout(() => {
+                    document.getElementById('quiz-section')?.scrollIntoView({ behavior: 'smooth' });
+                  }, 50);
+                }}
+                className="bg-gradient-primary hover:shadow-glow transition-all duration-300 text-lg px-8 py-6 gap-2"
+              >
+                <Sparkles className="w-5 h-5" />
+                Find My Anime
+              </Button>
+              <Button
+                size="lg"
+                variant="secondary"
                 asChild
-                className="bg-gradient-primary hover:shadow-glow transition-all duration-300 text-lg px-8 py-6"
+                className="text-lg px-8 py-6"
               >
                 <Link to="/browse">Browse All Anime</Link>
               </Button>
               <Button
                 size="lg"
-                variant="secondary"
+                variant="outline"
                 asChild
                 className="text-lg px-8 py-6"
               >
@@ -91,7 +121,63 @@ const Index = () => {
 
       <div className="container mx-auto px-4 py-12 space-y-16">
 
-        {/* ── Currently Airing ─────────────────────────────── */}
+        {/* ── Quiz Entry (collapsed by default) ─────────────── */}
+        <section id="quiz-section">
+          {!quizOpen ? (
+            /* Collapsed prompt card */
+            <button
+              onClick={() => setQuizOpen(true)}
+              className="w-full text-left group"
+            >
+              <div className="rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 via-card/60 to-accent/10 p-6 hover:border-primary/60 hover:shadow-glow transition-all duration-300">
+                <div className="flex items-center justify-between gap-4 flex-wrap">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+                      <Zap className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
+                        Not sure what to watch?
+                      </h2>
+                      <p className="text-muted-foreground text-sm mt-0.5">
+                        Take our 2-minute quiz and get personalized picks based on your exact taste — from beginner to veteran.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 text-primary font-medium text-sm shrink-0">
+                    <Sparkles className="w-4 h-4" />
+                    Start Quiz
+                    <ChevronDown className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
+                  </div>
+                </div>
+              </div>
+            </button>
+          ) : (
+            /* Expanded quiz */
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Sparkles className="w-7 h-7 text-accent" />
+                  <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+                    Find Your Perfect Anime
+                  </h2>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setQuizOpen(false)}
+                  className="text-muted-foreground hover:text-foreground gap-1"
+                >
+                  <ChevronUp className="w-4 h-4" />
+                  Collapse
+                </Button>
+              </div>
+              <AnimeQuiz />
+            </div>
+          )}
+        </section>
+
+        {/* ── Currently Airing ──────────────────────────────── */}
         <section className="space-y-6">
           <SectionHeader
             icon={<Tv2 className="w-7 h-7 text-emerald-400" />}
@@ -106,7 +192,7 @@ const Index = () => {
           ) : null}
         </section>
 
-        {/* ── Top Rated ────────────────────────────────────── */}
+        {/* ── Top Rated ─────────────────────────────────────── */}
         <section id="top-anime" className="space-y-6">
           <SectionHeader
             icon={<TrendingUp className="w-7 h-7 text-accent" />}
@@ -123,19 +209,6 @@ const Index = () => {
           ) : (
             <AnimeGrid animes={topAnimes} />
           )}
-        </section>
-
-        {/* ── Quiz ─────────────────────────────────────────── */}
-        <section className="space-y-6">
-          <SectionHeader
-            icon={<Sparkles className="w-7 h-7 text-accent" />}
-            title="Find Your Perfect Anime"
-          />
-          <p className="text-muted-foreground text-lg max-w-3xl leading-relaxed">
-            Not sure where to start? Answer a few quick questions and get
-            personalized recommendations tailored to your taste.
-          </p>
-          <AnimeQuiz />
         </section>
 
         {/* ── Beginner Guide ────────────────────────────────── */}
@@ -177,7 +250,7 @@ const Index = () => {
         </section>
       </div>
 
-      {/* ── Footer ───────────────────────────────────────────── */}
+      {/* ── Footer ────────────────────────────────────────────── */}
       <footer className="bg-card/30 border-t border-border/50 py-12 mt-16">
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center gap-3 mb-3">

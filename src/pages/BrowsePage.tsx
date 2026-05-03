@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { AnimeGrid } from '@/components/AnimeGrid';
@@ -7,6 +7,15 @@ import { fetchTopAnime, searchAnime, fetchAnimeByGenre, convertJikanToAnime, gen
 import type { Anime } from '@/services/jikanApi';
 import { Search, Loader2, Library } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+
+function dedupeById(animes: Anime[]): Anime[] {
+  const seen = new Set<number>();
+  return animes.filter((a) => {
+    if (seen.has(a.id)) return false;
+    seen.add(a.id);
+    return true;
+  });
+}
 
 const GENRES = [
   'All', 'Action', 'Adventure', 'Comedy', 'Drama', 'Fantasy',
@@ -22,13 +31,15 @@ export default function BrowsePage() {
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
   const { toast } = useToast();
+  // Track which fetch is the latest so stale results don't overwrite newer ones
+  const fetchId = useRef(0);
 
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
         const data = await fetchTopAnime(24);
-        const converted = data.map(convertJikanToAnime);
+        const converted = dedupeById(data.map(convertJikanToAnime));
         setAllAnimes(converted);
         setFilteredAnimes(converted);
       } catch {
@@ -40,50 +51,60 @@ export default function BrowsePage() {
     load();
   }, [toast]);
 
-  // Search debounce
+  // Search (debounced) — takes priority over genre filter
   useEffect(() => {
+    if (!searchQuery.trim()) return;
+
+    const id = ++fetchId.current;
     const timer = setTimeout(async () => {
-      if (!searchQuery.trim()) {
-        if (selectedGenre === 'All') setFilteredAnimes(allAnimes);
-        return;
-      }
       try {
         setSearching(true);
         const results = await searchAnime(searchQuery, 24);
-        setFilteredAnimes(results.map(convertJikanToAnime));
+        if (fetchId.current !== id) return; // stale
+        setFilteredAnimes(dedupeById(results.map(convertJikanToAnime)));
       } catch {
         toast({ title: 'Search Error', description: 'Failed to search.', variant: 'destructive' });
       } finally {
-        setSearching(false);
+        if (fetchId.current === id) setSearching(false);
       }
     }, 500);
     return () => clearTimeout(timer);
-  }, [searchQuery, allAnimes, selectedGenre, toast]);
+  }, [searchQuery, toast]);
 
-  // Genre filter
+  // Genre filter — only runs when not searching
   useEffect(() => {
     if (searchQuery.trim()) return;
 
+    if (selectedGenre === 'All') {
+      setFilteredAnimes(allAnimes);
+      return;
+    }
+
+    const id = ++fetchId.current;
     const filter = async () => {
-      if (selectedGenre === 'All') {
-        setFilteredAnimes(allAnimes);
-        return;
-      }
       const genreId = genreMapping[selectedGenre];
       if (!genreId) return;
       try {
         setSearching(true);
         const results = await fetchAnimeByGenre(genreId, 24);
-        setFilteredAnimes(results.map(convertJikanToAnime));
+        if (fetchId.current !== id) return; // stale
+        setFilteredAnimes(dedupeById(results.map(convertJikanToAnime)));
       } catch {
         toast({ title: 'Filter Error', description: 'Failed to filter.', variant: 'destructive' });
       } finally {
-        setSearching(false);
+        if (fetchId.current === id) setSearching(false);
       }
     };
 
     filter();
   }, [selectedGenre, searchQuery, allAnimes, toast]);
+
+  // When search is cleared, restore the right view
+  useEffect(() => {
+    if (!searchQuery.trim() && selectedGenre === 'All') {
+      setFilteredAnimes(allAnimes);
+    }
+  }, [searchQuery, selectedGenre, allAnimes]);
 
   const title = searchQuery
     ? `Results for "${searchQuery}"`
